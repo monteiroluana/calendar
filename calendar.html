@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Calendar</title>
+    <meta charset="utf-8" />
+
+    <!-- Bootstrap core CSS/JS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    
+    <style>
+        .calendar{  min-width: 280px;  min-height: 309px!important;  color:#fff; }
+
+        .month { text-align: center;  padding: 10px 25px; font-size: 12pt; text-transform: uppercase;}
+
+        table { font-size: 10pt !important; }
+
+        thead { color: #28a745; }
+
+        .table-borderless td, .table-borderless th {    border: 0; }
+    </style>
+   
+</head>
+
+<body>
+
+    <div class="calendar">
+       
+        <div class="month bg-success">
+            <div class="row">
+                <div class="col-1"><span id="prevYear" onclick="prevYear()"> &#171;</span></div>
+                <div class="col-1"><span onclick="prevMonth()" id="prev"> &#8249;</span></div>
+                <div class="col-8">
+                    <span id="month">August</span> - <span id="year">2017</span>
+                </div>
+                <div class="col-1"><span onclick="nextMonth()" id="next">&#8250;</span></div>
+                <div class="col-1"><span id="nextYear" onclick="nextYear()">&#187;</span></div>
+            </div>
+        </div>
+
+        <table class="table table-borderless table-dark">
+            <thead>
+                <tr>
+                    <th>S</th>
+                    <th>M</th>
+                    <th>T</th>
+                    <th>W</th>
+                    <th>T</th>
+                    <th>F</th>
+                    <th>S</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+            </tbody>
+        </table>
+
+    </div>
+
+    
+
+
+    
+    <script>
+        "use strict"
+
+        const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        // const monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        var now = new Date();
+
+        document.getElementById("year").innerHTML = now.getFullYear();
+        document.getElementById("year").value = now.getFullYear();
+
+
+        var monthRef = generateMonthRef(now.getFullYear());
+
+        drawCalendarInDOM(now.getMonth(), now.getFullYear());
+
+
+
+        function generateMonthRef(year) {
+            var jan = daysInMonth(1, year),
+                feb = daysInMonth(2, year),
+                mar = daysInMonth(3, year),
+                apr = daysInMonth(4, year),
+                may = daysInMonth(5, year),
+                jun = daysInMonth(6, year),
+                jul = daysInMonth(7, year),
+                aug = daysInMonth(8, year),
+                sep = daysInMonth(9, year),
+                oct = daysInMonth(10, year),
+                nov = daysInMonth(11, year),
+                dec = daysInMonth(12, year);
+            return [jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec];
+        }
+
+
+
+        function daysInMonth(month, year) {
+            var calendar = [],
+                daysMonth = new Date(year, month, 0).getDate(); // pegando quantos dias tem determinado mês
+
+            for (var i = 1; i <= daysMonth; i++) {
+                var dateFormat=`${year}-${month}-${i}`;
+                var date = new Date(year, month - 1, i);
+                var n = weekday[date.getDay()];
+                var obj = { "week": n, "year": year, "month": month, "day": i, "date": date, "dateFormat":dateFormat }
+                calendar.push(obj);
+            }
+            return calendar;
+        }
+
+
+
+        function drawCalendarInDOM(month, year) {
+
+            document.getElementById("year").innerHTML = year;
+            document.getElementById("year").value = year;
+
+            document.getElementById("month").innerHTML = monthName[month];
+            document.getElementById("month").value = month;
+            document.getElementById("prev").value = month - 1 < 0 ? 11 : month - 1;
+            document.getElementById("next").value = month + 1 > 11 ? 0 : month + 1;
+
+
+            document.getElementById("tbody").innerHTML = "";
+            $("#tbody").append("<tr>");
+
+            for (var i = 1; i <= monthRef[month].length; i++) {
+                if (i === 1 && weekday.indexOf(monthRef[month][i - 1].week) === 0) { $("#tbody").append("<td>" + i + "</td>") }
+                else if (i === 1) {
+                    var result = weekday.indexOf(monthRef[month][i - 1].week); // pegando o indice pelo valor da chave;
+                    for (var j = 0; j < result; j++) { $("#tbody").append("<td></td>"); } $("#tbody").append("<td>" + i + "</td>");// começando no dia certo da semana!
+                }
+                else { $("#tbody").append("<td>" + i + "</td>"); }
+
+                if (weekday.indexOf(monthRef[month][i - 1].week) === 6) $("#tbody").append("</tr><tr>");
+            }
+        }
+
+
+        function prevMonth() {
+            var month = document.getElementById("prev").value;
+            var year = document.getElementById("year").value;
+            if (month == 11) drawCalendarInDOM(month, year - 1);
+            else drawCalendarInDOM(month, year);
+        }
+
+        function nextMonth() {
+            var month = document.getElementById("next").value;
+            var year = document.getElementById("year").value;
+            if (month == 0) drawCalendarInDOM(month, year + 1);
+            else drawCalendarInDOM(month, year);
+        }
+
+        function prevYear() {
+            var month = document.getElementById("month").value;
+            var year = document.getElementById("year").value - 1;
+            monthRef = generateMonthRef(year);
+            drawCalendarInDOM(month, year);
+        }
+
+        function nextYear() {
+            var month = document.getElementById("month").value;
+            var year = document.getElementById("year").value + 1;
+            monthRef = generateMonthRef(year);
+            drawCalendarInDOM(month, year);
+        }
+
+    </script>
+</body>
+
+</html>
